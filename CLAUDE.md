@@ -4,6 +4,8 @@
 
 BusAcTa Operations — enterprise accounting firm SaaS platform. Supabase project ID: `mkqsrxpfgxovxaabtpld`.
 
+**Working directory:** `E:\Shared Documents\Application Development\BusAcTa Operations` (also accessible as `Z:\Application Development\BusAcTa Operations` via network mapping — use the `E:\` path for all local operations).
+
 ## Commands
 
 ```bash
