@@ -1,0 +1,60 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write|Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"C:\\Users\\Avani\\AppData\\Local\\Programs\\Python\\Python312\\Scripts\\code-review-graph.exe\" update --skip-flows --repo \"E:\\Shared Documents\\Application Development\\BusAcTa Operations\"",
+            "timeout": 30
+          }
+        ]
+      },
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$j = $input | ConvertFrom-Json; $f = $j.tool_input.file_path; if ($f -and (Test-Path $f)) { & 'C:\\Users\\Avani\\.bun\\bin\\bun.exe' x prettier --write $f 2>$null }",
+            "shell": "powershell",
+            "timeout": 15,
+            "statusMessage": "Formatting..."
+          },
+          {
+            "type": "command",
+            "command": "$j = $input | ConvertFrom-Json; $f = $j.tool_input.file_path; if ($f -and $f -match '\\.(ts|tsx|js|jsx)$' -and (Test-Path $f)) { & 'C:\\Users\\Avani\\.bun\\bin\\bun.exe' x eslint --fix $f 2>$null }",
+            "shell": "powershell",
+            "timeout": 20,
+            "statusMessage": "Linting..."
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"C:\\Users\\Avani\\AppData\\Local\\Programs\\Python\\Python312\\Scripts\\code-review-graph.exe\" status --repo \"E:\\Shared Documents\\Application Development\\BusAcTa Operations\"",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell -File \"E:\\Shared Documents\\Application Development\\BusAcTa Operations\\.claude\\quality-gate.ps1\"",
+            "timeout": 15,
+            "statusMessage": "Checking quality gates..."
+          }
+        ]
+      }
+    ]
+  }
+}

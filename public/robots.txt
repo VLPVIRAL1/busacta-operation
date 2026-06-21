@@ -1,0 +1,13 @@
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /portal/
+Disallow: /accept-invite/
+Disallow: /reset-password
+Disallow: /forgot-password
+Disallow: /session-expired
+Disallow: /unauthorized
+Disallow: /forbidden
+Disallow: /debug/
+
+Sitemap: https://busacta-one.lovable.app/sitemap.xml

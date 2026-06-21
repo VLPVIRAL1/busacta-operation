@@ -1,0 +1,1 @@
+REVOKE EXECUTE ON FUNCTION public.restore_all_chat_archives() FROM PUBLIC, anon;

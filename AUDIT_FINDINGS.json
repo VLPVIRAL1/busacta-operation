@@ -1,0 +1,62 @@
+[
+  {
+    "file": "src/lib/sharepoint/sharepoint.functions.ts",
+    "line": 60,
+    "summary": "dispatchJob is called but never imported — ReferenceError at runtime",
+    "failure_scenario": "Admin clicks 'Save Firm SharePoint URL' → saveSharePointFirmSite() runs → line 60 tries to call dispatchJob(syntheticJob) but dispatchJob is not imported, throwing ReferenceError: dispatchJob is not defined. The entire provisioning flow blocks; admin sees a 500 error and the firm's SharePoint integration fails to initialize."
+  },
+  {
+    "file": "src/routes/api/public/email/oauth/microsoft/callback.ts",
+    "line": 84,
+    "summary": "OAuth tokens stored in plaintext in columns named *_encrypted",
+    "failure_scenario": "User completes Microsoft OAuth flow → callback stores access_token and refresh_token directly into columns named access_token_encrypted/refresh_token_encrypted with no encryption. If an attacker gains DB read access (RLS hole, compromised key, backup leak), they obtain valid refresh tokens and can mint access tokens with Mail.ReadWrite/Mail.Send scopes against every connected user's mailbox indefinitely without further interaction."
+  },
+  {
+    "file": "src/routes/api/public/sharepoint/webhook.ts",
+    "line": 44,
+    "summary": "POST handler accepts unauthenticated, unvalidated Graph notifications",
+    "failure_scenario": "Attacker POSTs repeatedly to /api/public/sharepoint/webhook with {value:[{clientState:'busacta-drive-<random-uuid>'}]}. Each POST is processed without HMAC validation or shared-secret check; the handler enqueues delta_sync_drive jobs for random project UUIDs. Worker drains the queue executing expensive Graph delta syncs against non-existent or victim projects, exhausting Graph rate limits and DB worker capacity."
+  },
+  {
+    "file": "src/lib/onenote/converter.ts",
+    "line": 37,
+    "summary": "Anchor href accepts javascript: and data: schemes without allowlist",
+    "failure_scenario": "Attacker creates a Tiptap note with a link mark whose href attribute is set to 'javascript:alert(document.cookie)'. When the note is synced to OneNote via convertNodeToOneNoteHtml, the <a href=...> tag emits the javascript: scheme verbatim (escapeAttr only escapes quotes and <). The OneNote page can then execute the click handler in certain rendering contexts or if re-served via the app's deep-link preview."
+  },
+  {
+    "file": "src/lib/onenote/converter.ts",
+    "line": 137,
+    "summary": "Image src accepts javascript: and data:text/html schemes without allowlist",
+    "failure_scenario": "Attacker embeds an image in a Tiptap note with src='data:text/html,<script>alert(1)</script>'. The converter emits <img src=...> without scheme validation. OneNote web rendering may execute the data: URL, or the same HTML is returned via the app's note-preview API where a browser can execute the inline script."
+  },
+  {
+    "file": "src/routes/api/public/email/oauth/microsoft/callback.ts",
+    "line": 76,
+    "summary": "Scope downgrade not detected during OAuth callback",
+    "failure_scenario": "User completes OAuth flow but unchecks Mail.Send in Microsoft's consent screen. The callback stores tokens.scope with a narrower set (only Mail.ReadWrite), yet there is no validation against MS_GRAPH_SCOPES. The account is marked is_active=true and sync_status=idle; the UI reports 'Connected', but any send/sync attempt fails with 403 Insufficient Scopes, and the user has no signal the connection is broken."
+  },
+  {
+    "file": "src/lib/onenote/notebook.ts",
+    "line": 184,
+    "summary": "Notebook URL match uses bidirectional substring inclusion — any substring resolves any notebook",
+    "failure_scenario": "HR Manager A wants to attach their own notebook to Employee X's profile but accidentally resolves Employee Y's notebook instead. The code at line 184 matches via webHref.includes(inputLower) || inputLower.includes(webHref). By pasting a public SharePoint site URL (e.g., 'https://contoso.sharepoint.com'), which is a substring of any user's notebook URL under that site, the FIRST notebook in the site is returned and silently saved to Employee X. Manager A has now linked Employee Y's personal notes to Employee X's profile."
+  },
+  {
+    "file": "src/routes/api/public/cron/sharepoint-worker.ts",
+    "line": 72,
+    "summary": "Job attempts double-incremented: dies one attempt early",
+    "failure_scenario": "A sharepoint_sync_job with max_attempts=3 fails on its first run. Line 60 updates DB: attempts=1. Catch block at line 72 computes nextAttempts from stale in-memory job.attempts=0 (unmodified by the DB write), so nextAttempts=1. On retry, line 60 again increments to attempts=2. By the third failure, line 72 sees job.attempts=2 (stale) so nextAttempts=3, which satisfies death check 3 >= 3. Job is marked dead after only 2 actual failures instead of 3 configured retries, silently losing a retry slot."
+  },
+  {
+    "file": "src/lib/sharepoint/handlers.server.ts",
+    "line": 1009,
+    "summary": "Delta token corrupted when $deltaToken param missing from Graph deltaLink",
+    "failure_scenario": "Graph returns a deltaLink whose query uses a different param name or omits $deltaToken. Line 1009 calls searchParams.get('$deltaToken') which returns null; the fallback uses the entire deltaLink URL as the next token. On the next cron tick, the worker constructs a Graph request with `?$deltaToken=<full-url-encoded>`, producing a malformed URL that returns 400 Bad Request from Graph. All subsequent delta syncs for the project fail until an admin manually clears the corrupted token."
+  },
+  {
+    "file": "src/lib/sharepoint/upload.ts",
+    "line": 148,
+    "summary": "Resumable upload session not cancelled on chunk failure — resource leak",
+    "failure_scenario": "During a multi-chunk resumable upload, a chunk PUT returns 5xx or a transient network error. Line 148 throws immediately without issuing a DELETE request to cancel the upload session URL. The orphan session remains in SharePoint for ~24 hours, consuming storage and blocking the filename from being reused. If this happens during bulk document restoration, hundreds of orphan sessions could accumulate before cleanup."
+  }
+]

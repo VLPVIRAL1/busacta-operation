@@ -1,0 +1,2 @@
+ALTER TABLE public.bank_accounts ADD COLUMN gl_account_id uuid REFERENCES public.chart_of_accounts(id) ON DELETE SET NULL;
+CREATE INDEX bank_accounts_gl_account_idx ON public.bank_accounts(gl_account_id) WHERE gl_account_id IS NOT NULL;

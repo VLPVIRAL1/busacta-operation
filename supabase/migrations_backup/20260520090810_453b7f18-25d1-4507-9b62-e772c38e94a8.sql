@@ -1,0 +1,1 @@
+ALTER TYPE public.organizer_target_type ADD VALUE IF NOT EXISTS 'direct_client';

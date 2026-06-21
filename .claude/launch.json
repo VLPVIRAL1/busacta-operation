@@ -1,0 +1,53 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "Web Dev Server",
+      "runtimeExecutable": "C:\\Program Files\\Git\\bin\\bash.exe",
+      "runtimeArgs": [
+        "-c",
+        "export PATH='/c/Users/Avani/.bun/bin:/c/Program Files/nodejs:'$PATH && /c/Users/Avani/.bun/bin/bun run dev"
+      ],
+      "port": 8080,
+      "autoPort": true
+    },
+    {
+      "name": "Production Preview",
+      "runtimeExecutable": "C:\\Users\\Avani\\.bun\\bin\\bun.exe",
+      "runtimeArgs": ["run", "preview"],
+      "port": 4173
+    },
+    {
+      "name": "Backup Worker",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["worker/backup-worker/server.js"],
+      "port": 8081
+    },
+    {
+      "name": "Electron Desktop",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["electron", "."],
+      "port": 0
+    },
+    {
+      "name": "Operation App",
+      "runtimeExecutable": "C:\\Program Files\\Git\\bin\\bash.exe",
+      "runtimeArgs": [
+        "-c",
+        "cd 'E:/Shared Documents/Application Development/operation-app' && npm run dev"
+      ],
+      "port": 5173,
+      "autoPort": true
+    },
+    {
+      "name": "Esign Organizer App",
+      "runtimeExecutable": "C:\\Program Files\\Git\\bin\\bash.exe",
+      "runtimeArgs": [
+        "-c",
+        "cd 'E:/Shared Documents/Application Development/esign-organizer-app' && npm run dev"
+      ],
+      "port": 5174,
+      "autoPort": true
+    }
+  ]
+}

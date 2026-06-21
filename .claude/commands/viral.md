@@ -1,0 +1,1 @@
+Run the Code Review Graph session startup sequence: load `get_minimal_context_tool` via ToolSearch, then call it with task="session start - review current changes". Report the summary back to the user covering: node/edge counts, risk score, affected flows, and top communities.

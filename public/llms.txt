@@ -1,0 +1,17 @@
+# TaxOps Suite
+
+> Professional offshore tax compliance and client communication suite for CPA firms — manage firms, projects, tasks, time, petty cash, HR, and reports in one operations hub.
+
+TaxOps Suite is a private operations platform for offshore accounting and tax teams. Most pages are gated behind authentication; the public surface is the marketing landing, sign-in, and the user guide.
+
+## Pages
+
+- [Home](/): Product overview and entry point.
+- [Sign in](/login): Authentication for firm staff and client users.
+- [User guide](/guide/manual): Walkthrough of dashboard, firms, projects, tasks, time logs, reports, and admin.
+- [FAQ](/guide/faq): Common questions about filters, roles, exports, and access.
+- [Workflows](/guide/workflows): Step-by-step playbooks for common operations.
+
+## Optional
+
+- [Forgot password](/forgot-password): Account recovery.

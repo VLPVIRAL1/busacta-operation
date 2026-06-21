@@ -1,0 +1,1 @@
+ALTER TABLE payroll_salary_structures ADD CONSTRAINT payroll_salary_structures_employee_effective_from_key UNIQUE (employee_id, effective_from);

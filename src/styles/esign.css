@@ -1,0 +1,231 @@
+/**
+ * E-Signature module — Indigo Trust palette + Dropbox-Sign-inspired layout
+ * primitives. Scoped under `.esign-scope` so the rest of the app is untouched.
+ */
+
+.esign-scope {
+  --esign-bg: #fafbfc;
+  --esign-surface: #ffffff;
+  --esign-surface-muted: #f3f5f9;
+  --esign-border: #e3e8ef;
+  --esign-border-strong: #c9d2e0;
+  --esign-ink: #0f1b3d;
+  --esign-ink-soft: #3a4a6a;
+  --esign-muted: #6b7896;
+  --esign-primary: #4f46e5;
+  --esign-primary-soft: #eef0ff;
+  --esign-primary-ink: #2d2380;
+  --esign-success: #0d7a5f;
+  --esign-warn: #b45309;
+  --esign-danger: #b91c1c;
+  --esign-shadow-sm: 0 1px 2px rgba(15, 27, 61, 0.06);
+  --esign-shadow-md: 0 6px 24px -8px rgba(15, 27, 61, 0.18);
+  --esign-shadow-lg: 0 24px 60px -24px rgba(15, 27, 61, 0.3);
+}
+
+.dark .esign-scope {
+  --esign-bg: #0b1020;
+  --esign-surface: #111933;
+  --esign-surface-muted: #182142;
+  --esign-border: #1f2a4d;
+  --esign-border-strong: #2d3a64;
+  --esign-ink: #f3f6ff;
+  --esign-ink-soft: #c8d2ee;
+  --esign-muted: #8893b7;
+  --esign-primary: #818cf8;
+  --esign-primary-soft: rgba(129, 140, 248, 0.12);
+  --esign-primary-ink: #c7ccff;
+}
+
+/* Reusable surface helpers ------------------------------------------------ */
+
+.esign-card {
+  background: var(--esign-surface);
+  border: 1px solid var(--esign-border);
+  border-radius: 14px;
+  box-shadow: var(--esign-shadow-sm);
+}
+
+.esign-card-elevated {
+  background: var(--esign-surface);
+  border: 1px solid var(--esign-border);
+  border-radius: 16px;
+  box-shadow: var(--esign-shadow-md);
+}
+
+.esign-hero {
+  background:
+    radial-gradient(120% 80% at 0% 0%, rgba(79, 70, 229, 0.1) 0%, transparent 60%),
+    radial-gradient(80% 60% at 100% 0%, rgba(15, 27, 61, 0.05) 0%, transparent 50%),
+    var(--esign-surface);
+  border: 1px solid var(--esign-border);
+  border-radius: 20px;
+}
+
+.esign-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.2rem 0.55rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  border-radius: 999px;
+  background: var(--esign-primary-soft);
+  color: var(--esign-primary-ink);
+  border: 1px solid color-mix(in srgb, var(--esign-primary) 25%, transparent);
+}
+
+.esign-divider {
+  height: 1px;
+  background: linear-gradient(to right, transparent, var(--esign-border-strong), transparent);
+}
+
+/* Split-screen shell ------------------------------------------------------ */
+
+.esign-split {
+  display: grid;
+  grid-template-columns: minmax(280px, 360px) 1fr;
+  gap: 1.25rem;
+  min-height: calc(100vh - 200px);
+}
+
+@media (max-width: 1023px) {
+  .esign-split {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Signer page ------------------------------------------------------------ */
+
+.esign-signer-bg {
+  background:
+    radial-gradient(60% 40% at 50% 0%, rgba(79, 70, 229, 0.08) 0%, transparent 70%), var(--esign-bg);
+}
+
+/* Floating action affordances */
+.esign-pulse-ring {
+  position: relative;
+}
+.esign-pulse-ring::after {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  border-radius: inherit;
+  border: 2px solid var(--esign-primary);
+  opacity: 0.6;
+  animation: esign-pulse 1.8s ease-out infinite;
+  pointer-events: none;
+}
+@keyframes esign-pulse {
+  0% {
+    transform: scale(0.96);
+    opacity: 0.6;
+  }
+  70% {
+    transform: scale(1.08);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1.08);
+    opacity: 0;
+  }
+}
+
+/* Smooth fade for PDF page swaps */
+.esign-fade-in {
+  animation: esign-fade 240ms ease-out;
+}
+@keyframes esign-fade {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* PDF skeleton — sized by parent .relative wrapper */
+.esign-page-skeleton {
+  position: absolute;
+  inset: 12px;
+  border-radius: 6px;
+  background: linear-gradient(
+    90deg,
+    rgba(15, 27, 61, 0.04) 0%,
+    rgba(15, 27, 61, 0.1) 50%,
+    rgba(15, 27, 61, 0.04) 100%
+  );
+  background-size: 200% 100%;
+  animation: esign-shimmer 1.4s ease-in-out infinite;
+}
+.dark .esign-page-skeleton {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.04) 0%,
+    rgba(255, 255, 255, 0.1) 50%,
+    rgba(255, 255, 255, 0.04) 100%
+  );
+  background-size: 200% 100%;
+}
+@keyframes esign-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Signer route open transition */
+.esign-signer-enter {
+  animation: esign-signer-in 360ms ease-out;
+}
+@keyframes esign-signer-in {
+  from {
+    opacity: 0;
+    filter: blur(6px);
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    filter: blur(0);
+    transform: translateY(0);
+  }
+}
+
+/* Mobile signature-pad sheet */
+@media (max-width: 640px) {
+  .esign-pad-shell {
+    align-items: stretch !important;
+    padding: 0 !important;
+  }
+  .esign-pad-panel {
+    max-width: 100% !important;
+    width: 100% !important;
+    min-height: 100dvh;
+    border-radius: 0 !important;
+    display: flex;
+    flex-direction: column;
+  }
+  .esign-pad-panel > [data-esign-pad-body] {
+    flex: 1 1 auto;
+    overflow-y: auto;
+    padding-bottom: env(safe-area-inset-bottom, 0);
+  }
+}
+
+/* Focus visibility for keyboard users */
+.esign-scope :focus-visible {
+  outline: 2px solid var(--esign-primary);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+/* Field-canvas: disable interactions until page ready */
+.esign-canvas-locked {
+  pointer-events: none;
+  opacity: 0.6;
+  filter: saturate(0.85);
+}

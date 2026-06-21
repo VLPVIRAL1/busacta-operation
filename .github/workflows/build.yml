@@ -1,0 +1,151 @@
+name: Build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    name: Production build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: bun run lint
+
+      - name: Production build
+        # `vite build` performs full module resolution, so any unresolved
+        # imports (e.g. missing Capacitor packages, broken `@/` aliases)
+        # fail the job here instead of breaking deployment.
+        run: bun run build
+
+  contrast:
+    name: Dark/light contrast (Vitest)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      - run: npm ci
+      - run: bunx vitest run src/lib/ui/__tests__/contrast.test.ts
+
+  dark-mode-visual:
+    name: Dark-mode smoke (Playwright)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check seed env
+        id: seed
+        env:
+          E2E_USER_A_EMAIL: ${{ secrets.E2E_USER_A_EMAIL }}
+          E2E_USER_A_PASSWORD: ${{ secrets.E2E_USER_A_PASSWORD }}
+          PLAYWRIGHT_BASE_URL: ${{ secrets.PLAYWRIGHT_BASE_URL }}
+        run: |
+          if [ -z "$E2E_USER_A_EMAIL" ] || [ -z "$E2E_USER_A_PASSWORD" ] || [ -z "$PLAYWRIGHT_BASE_URL" ]; then
+            echo "Seed env vars missing — skipping dark-mode-visual job."
+            echo "has_seed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_seed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: oven-sh/setup-bun@v2
+        if: steps.seed.outputs.has_seed == 'true'
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        if: steps.seed.outputs.has_seed == 'true'
+        run: npm ci
+
+      - name: Install Playwright browsers
+        if: steps.seed.outputs.has_seed == 'true'
+        run: bunx playwright install --with-deps chromium
+
+      - name: Run dark-mode smoke
+        if: steps.seed.outputs.has_seed == 'true'
+        env:
+          PLAYWRIGHT_BASE_URL: ${{ secrets.PLAYWRIGHT_BASE_URL }}
+          E2E_USER_A_EMAIL: ${{ secrets.E2E_USER_A_EMAIL }}
+          E2E_USER_A_PASSWORD: ${{ secrets.E2E_USER_A_PASSWORD }}
+        run: bun scripts/dark-mode-smoke.mjs
+
+      - name: Upload dark-mode artifacts
+        if: steps.seed.outputs.has_seed == 'true' && always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dark-mode-smoke
+          path: |
+            tests/__snapshots__/darkmode
+            dark-mode-findings.json
+          if-no-files-found: ignore
+          retention-days: 14
+
+  tooltip-e2e:
+    name: Tooltip regression (Playwright)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    # Don't block CI when seed secrets aren't available (e.g. forked PRs).
+    # The job runs but short-circuits inside the "Check seed" step.
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check seed env
+        id: seed
+        env:
+          E2E_USER_A_EMAIL: ${{ secrets.E2E_USER_A_EMAIL }}
+          E2E_USER_A_PASSWORD: ${{ secrets.E2E_USER_A_PASSWORD }}
+          PLAYWRIGHT_BASE_URL: ${{ secrets.PLAYWRIGHT_BASE_URL }}
+        run: |
+          if [ -z "$E2E_USER_A_EMAIL" ] || [ -z "$E2E_USER_A_PASSWORD" ] || [ -z "$PLAYWRIGHT_BASE_URL" ]; then
+            echo "Seed env vars missing — skipping tooltip-e2e job."
+            echo "has_seed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_seed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: oven-sh/setup-bun@v2
+        if: steps.seed.outputs.has_seed == 'true'
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        if: steps.seed.outputs.has_seed == 'true'
+        run: npm ci
+
+      - name: Install Playwright browsers
+        if: steps.seed.outputs.has_seed == 'true'
+        run: bunx playwright install --with-deps chromium
+
+      - name: Run tooltip Playwright spec
+        if: steps.seed.outputs.has_seed == 'true'
+        env:
+          PLAYWRIGHT_BASE_URL: ${{ secrets.PLAYWRIGHT_BASE_URL }}
+          E2E_USER_A_EMAIL: ${{ secrets.E2E_USER_A_EMAIL }}
+          E2E_USER_A_PASSWORD: ${{ secrets.E2E_USER_A_PASSWORD }}
+        run: bunx playwright test e2e/tooltip-entity-code.spec.ts
+
+      - name: Upload Playwright report
+        if: steps.seed.outputs.has_seed == 'true' && always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tooltip-e2e-playwright-report
+          path: |
+            playwright-report
+            test-results
+          if-no-files-found: ignore
+          retention-days: 7
